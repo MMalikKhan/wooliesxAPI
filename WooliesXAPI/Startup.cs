@@ -9,6 +9,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using WooliesXAPI.Extentions;
+using WooliesXAPI.ExternalHttpClientServices;
+using WooliesXAPI.Services;
 
 namespace WooliesXAPI
 {
@@ -35,6 +37,9 @@ namespace WooliesXAPI
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+            
+            services.AddHttpClient<IWooliesXHttpClient, WooliesXHttpClient>();
+            services.AddTransient<IProductSortService, ProductSortService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
