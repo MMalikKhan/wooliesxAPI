@@ -6,20 +6,22 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using WooliesXAPI.Common;
+using WooliesXAPI.DataContracts;
 using WooliesXAPI.Models;
+using Product = WooliesXAPI.Models.Product;
 
 namespace WooliesXAPI.ExternalHttpClientServices
 {
     public interface IWooliesXHttpClient
     {
-        Task<string> GetTrolleyCalculator();
+        Task<string> FindLowestTrolleyCalculator(GetTrolleyTotalRequest request);
         Task<List<Product>> GetProductListAsync();
         Task<List<ShopperHistory>> GetShopperHistoryProductListAsync();
     }
 
     public class APIConstants
     {
-        public const string GetTrolleyCalculatorResourceAPI = "api/resource/trolleyCalculator";
+        public const string GetTrolleyCalculatorResourceAPI = "api/resource/trolleyCalculator?token={0}";
         public const string ProductListAPI = "api/resource/products?token={0}";
         public const string ShoppingHistoryAPI = "api/resource/shopperHistory?token={0}";
     }
@@ -38,34 +40,14 @@ namespace WooliesXAPI.ExternalHttpClientServices
             _logger = logger;
         }
 
-        public async Task<string> GetTrolleyCalculator()
+        public async Task<string> FindLowestTrolleyCalculator(GetTrolleyTotalRequest request)
         {
-            try
-            {
-                using (var request =
-                    new HttpRequestMessage(HttpMethod.Post, APIConstants.GetTrolleyCalculatorResourceAPI))
-                {
-                    var json = JsonConvert.SerializeObject(new {token = ApplicationConstants.UserToken});
-                    using (var stringContent = new StringContent(json, Encoding.UTF8, "application/json"))
-                    {
-                        request.Content = stringContent;
-
-                        using (var response = await _client
-                            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead)
-                            .ConfigureAwait(false))
-                        {
-                            response.EnsureSuccessStatusCode();
-                            return await response.Content.ReadAsStringAsync();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error to retreive TrolleyCalculations");
-            }
-
-            return null;
+            _logger.LogTrace("retreiving GetTrolleyCalculator list");
+            var content = JsonConvert.SerializeObject(request);
+            _logger.LogTrace($"FindLowestTrolleycalculator content {content}");
+            return await RequestHttpClient<string>(HttpMethod.Post,
+                string.Format(APIConstants.GetTrolleyCalculatorResourceAPI, ApplicationConstants.UserToken),
+                JsonConvert.SerializeObject(request));
         }
 
         public async Task<List<Product>> GetProductListAsync()

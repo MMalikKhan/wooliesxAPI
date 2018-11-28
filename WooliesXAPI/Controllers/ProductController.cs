@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using WooliesXAPI.Common;
+using WooliesXAPI.DataContracts;
 using WooliesXAPI.ExternalHttpClientServices;
-using WooliesXAPI.Models;
 using WooliesXAPI.Services;
+using WooliesXAPI.Models;
 
 namespace WooliesXAPI.Controllers
 {
@@ -16,11 +17,11 @@ namespace WooliesXAPI.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-       
+
         private readonly IWooliesXHttpClient _wooliesXHttpClient;
         private readonly IProductSortService _productSortService;
         private readonly ILogger<ProductController> _logger;
-       
+
 
         public ProductController(IWooliesXHttpClient wooliesXHttpClient, IProductSortService productSortService,
             ILogger<ProductController> logger)
@@ -37,7 +38,7 @@ namespace WooliesXAPI.Controllers
             _logger.LogTrace($"api/product/sort executing sortOption {sortOption}");
             if (string.IsNullOrWhiteSpace(sortOption) || !ModelState.IsValid)
             {
-                BadRequest("Not all required information was supplied");
+                return BadRequest("Not all required information was supplied");
             }
 
             Enum.TryParse(sortOption, out ProductSortOrder productSortOrder);
@@ -51,7 +52,7 @@ namespace WooliesXAPI.Controllers
         {
             var productsList = await _wooliesXHttpClient.GetProductListAsync();
             if (productSortOrder != ProductSortOrder.Recommended)
-            {   
+            {
                 return _productSortService.SortProductListBy(productsList, productSortOrder);
             }
             else
@@ -73,6 +74,7 @@ namespace WooliesXAPI.Controllers
                         productsList.Remove(product);
                     }
                 }
+
                 //add all remain products from actual productlist retreived
                 foreach (var product in productsList)
                 {
@@ -84,11 +86,18 @@ namespace WooliesXAPI.Controllers
         }
 
 
-        [HttpGet]
-        [Route("trolleycalculations")]
-        public async Task<ActionResult> GetTrolleyCalculationsAsync()
+        [HttpPost]
+        [Route("trolleyTotal")]
+        public async Task<ActionResult<string>> GetTrolleyCalculationsAsync(string token,
+            [FromBody] GetTrolleyTotalRequest request)
         {
-            var result = await _wooliesXHttpClient.GetTrolleyCalculator();
+            _logger.LogTrace($"{token}, {request}");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("trolleyCalculator not all data is valid");
+            }
+
+            var result = await _wooliesXHttpClient.FindLowestTrolleyCalculator(request);
             return Ok(result);
         }
 

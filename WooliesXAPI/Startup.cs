@@ -31,13 +31,13 @@ namespace WooliesXAPI
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "WooliesX API Challenge", Version = "v1" });
+                c.SwaggerDoc("v1", new Info {Title = "WooliesX API Challenge", Version = "v1"});
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
-            
+
             services.AddHttpClient<IWooliesXHttpClient, WooliesXHttpClient>();
             services.AddTransient<IProductSortService, ProductSortService>();
         }
@@ -82,8 +82,6 @@ namespace WooliesXAPI
                     name: "default",
                     template: "{controller=user}/");
             });
-
-
         }
     }
 }
