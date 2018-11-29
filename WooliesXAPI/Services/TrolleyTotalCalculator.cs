@@ -31,9 +31,10 @@ namespace WooliesXAPI.Services
             total = CalculatureTotalPrice(allQuantities, allProducts, total);
             trolleyTotalList.Add(total);
 
-            // iterate specials and calculate new trolley total based on special pricing
-            foreach (var specialItem in request.Specials)
+            //iterate specials and calculate new trolley total based on special pricing
+            for (int i=0; i< request.Specials.Count; i++)//var specialItem in request.Specials)
             {
+                var specialItem = request.Specials[i];
                 //check if specific special applies to the list
                 if (CheckIfThisSpecialApply(specialItem, allQuantities))
                 {
@@ -45,7 +46,8 @@ namespace WooliesXAPI.Services
                         remainingItemsList = GetRemainingQuantityList(specialItem, remainingItemsList);
                         specialItemTotal = specialItemTotal + specialItem.Total;
                     }
-
+                    //recursively apply specials
+                    remainingItemsList = ApplySpecialsRecursively(i, request.Specials, remainingItemsList, ref specialItemTotal);
                     specialItemTotal = CalculatureTotalPrice(remainingItemsList, allProducts, specialItemTotal);
                     trolleyTotalList.Add(specialItemTotal);
                     _logger.LogTrace($"special total applied specialTotal {specialItem.Total} newTotal {specialItemTotal}");
@@ -53,6 +55,32 @@ namespace WooliesXAPI.Services
             }
 
             return trolleyTotalList.OrderBy(c => c).FirstOrDefault();
+        }
+
+        private List<Quantity> ApplySpecialsRecursively(int skipItem, List<Special> specials, List<Quantity> remainingItemsList, ref decimal total)
+        {
+            for (int i = 0; i < specials.Count; i++)
+            {
+                //skip the current item
+                if(i == skipItem)
+                    continue;
+                
+                var specialItem = specials[i];
+                //check if specific special applies to the list
+                if (CheckIfThisSpecialApply(specialItem, remainingItemsList))
+                {
+                    total = total + specialItem.Total;
+                    remainingItemsList = GetRemainingQuantityList(specialItem, remainingItemsList);
+                    //check if special can be applied multiple times
+                    while (CheckIfThisSpecialApply(specialItem, remainingItemsList))
+                    {
+                        remainingItemsList = GetRemainingQuantityList(specialItem, remainingItemsList);
+                        total = total + specialItem.Total;
+                    }
+                }
+            }
+
+            return remainingItemsList;
         }
 
         /// <summary>
