@@ -8,7 +8,7 @@ namespace WooliesXAPI.Services
 
     public interface ITrolleyTotalCalculator
     {
-        double CalculateLowestTrolleyTotal(GetTrolleyTotalRequest request);
+        decimal CalculateLowestTrolleyTotal(GetTrolleyTotalRequest request);
 
     }
 
@@ -21,12 +21,12 @@ namespace WooliesXAPI.Services
             _logger = logger;
         }
 
-        public double CalculateLowestTrolleyTotal(GetTrolleyTotalRequest request)
+        public decimal CalculateLowestTrolleyTotal(GetTrolleyTotalRequest request)
         {
             var allProducts = request.Products;
             var allQuantities = request.Quantities;
-            var trolleyTotalList = new List<double>();
-            double total = 0;
+            var trolleyTotalList = new List<decimal>();
+            decimal total = 0;
             //calculate total without any promotions
             total = CalculatureTotalPrice(allQuantities, allProducts, total);
             trolleyTotalList.Add(total);
@@ -62,8 +62,8 @@ namespace WooliesXAPI.Services
         /// <param name="products"></param>
         /// <param name="total"></param>
         /// <returns></returns>
-        private static double CalculatureTotalPrice(List<Quantity> quantities, List<ProductPrice> products,
-            double total)
+        private static decimal CalculatureTotalPrice(List<Quantity> quantities, List<ProductPrice> products,
+            decimal total)
         {
             foreach (var itemsQuantity in quantities)
             {

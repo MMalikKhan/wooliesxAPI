@@ -15,7 +15,7 @@ namespace WooliesXAPI.DataContracts
     {
         [JsonProperty("name")] public string Name { get; set; }
 
-        [JsonProperty("price")] public double Price { get; set; }
+        [JsonProperty("price")] public decimal Price { get; set; }
     }
     public class Quantity
     {
@@ -28,6 +28,6 @@ namespace WooliesXAPI.DataContracts
     {
         [JsonProperty("quantities")] public List<Quantity> Quantities { get; set; }
 
-        [JsonProperty("total")] public double Total { get; set; }
+        [JsonProperty("total")] public decimal Total { get; set; }
     }
 }
