@@ -1,0 +1,30 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "containerregistry_WooliesXAPIContainers_name": {
+      "type": "string"
+    },
+    "containerregistry_WooliesXAPIContainers_location": {
+      "type": "string"
+    },
+    "containerregistry_WooliesXAPIContainers_AdminUserEnabled": {
+      "type": "bool"
+    }
+  },
+  "resources": [
+    {
+      "location": "[parameters('containerregistry_WooliesXAPIContainers_location')]",
+      "name": "[parameters('containerregistry_WooliesXAPIContainers_name')]",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2017-10-01",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "tenantId": "[subscription().tenantId]",
+        "adminUserEnabled": "[parameters('containerregistry_WooliesXAPIContainers_AdminUserEnabled')]"
+      }
+    }
+  ]
+}
